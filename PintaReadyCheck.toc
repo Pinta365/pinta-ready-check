@@ -6,5 +6,6 @@
 ## Version: 1.0.0
 ## SavedVariables: PintaReadyCheckDB
 ## X-Curse-Project-ID: 1568788
+## X-Wago-ID: QKy9v4K7
 
 embeds.xml

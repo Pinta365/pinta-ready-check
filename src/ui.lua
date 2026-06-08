@@ -98,6 +98,12 @@ local function buildMainFrame()
         self:StopMovingOrSizing()
         savePosition()
     end)
+    -- Right-click anywhere on the frame to dismiss it manually.
+    mainFrame:SetScript("OnMouseUp", function(self, button)
+        if button == "RightButton" then
+            PRC.HideDisplay()
+        end
+    end)
     mainFrame:Hide()
 
     restorePosition()
@@ -257,6 +263,12 @@ end
 -- ============================================================
 -- Event callbacks (called from PintaReadyCheck.lua)
 -- ============================================================
+
+-- Hide the display immediately (manual close / slash command).
+function PRC.HideDisplay()
+    if fadeTimer then fadeTimer:Cancel(); fadeTimer = nil end
+    if mainFrame then mainFrame:Hide() end
+end
 
 function PRC.OnReadyCheck()
     if fadeTimer then fadeTimer:Cancel(); fadeTimer = nil end

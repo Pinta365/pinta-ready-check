@@ -35,6 +35,7 @@ Names are shown in class color.
 |---|---|
 | `/prc` | Show command list |
 | `/prc test` | Force a scan and show the window now |
+| `/prc close` | Hide the window now (or just right-click it) |
 | `/prc slackers` | Toggle "only show players with missing buffs" |
 | `/prc debug` | Toggle debug output |
 | `/prc reset` | Reset settings to defaults (with confirmation, reloads UI) |

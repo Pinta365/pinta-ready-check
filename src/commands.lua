@@ -22,6 +22,7 @@ function PRC.initCommands()
         print(c, "|cffFFFFFF/prc debug|r - toggle debug output")
         print(c, "|cffFFFFFF/prc slackers|r - toggle \"only show slackers\" mode")
         print(c, "|cffFFFFFF/prc test|r - force a buff scan and show the display")
+        print(c, "|cffFFFFFF/prc close|r - hide the display now (or right-click it)")
         print(c, "|cffFFFFFF/prc reset|r - reset settings to defaults")
     end
 
@@ -40,6 +41,8 @@ function PRC.initCommands()
                 PRC.QueuePartyInspects()
                 PRC.RefreshDisplay()
             end
+        elseif cmd == "close" or cmd == "hide" then
+            PRC.HideDisplay()
         elseif cmd == "reset" then
             StaticPopup_Show("PINTAREADYCHECK_RESET_CONFIRM")
         else

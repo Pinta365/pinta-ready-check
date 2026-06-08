@@ -57,12 +57,30 @@ local function setSquareState(tex, mark, state)
 end
 
 -- ============================================================
+-- Position persistence
+-- ============================================================
+local DEFAULT_POS = { point = "CENTER", relPoint = "CENTER", x = 200, y = 100 }
+
+-- Anchor the frame from the saved position, falling back to the default spot.
+local function restorePosition()
+    local pos = (PintaReadyCheckDB and PintaReadyCheckDB.framePos) or DEFAULT_POS
+    mainFrame:ClearAllPoints()
+    mainFrame:SetPoint(pos.point, UIParent, pos.relPoint, pos.x, pos.y)
+end
+
+-- Capture the current anchor into SavedVariables after a drag.
+local function savePosition()
+    local point, _, relPoint, x, y = mainFrame:GetPoint(1)
+    if not point then return end
+    PintaReadyCheckDB.framePos = { point = point, relPoint = relPoint, x = x, y = y }
+end
+
+-- ============================================================
 -- Frame construction
 -- ============================================================
 local function buildMainFrame()
     mainFrame = CreateFrame("Frame", "PintaReadyCheckDisplay", UIParent, "BackdropTemplate")
     mainFrame:SetHeight(FRAME_PAD * 2 + TITLE_HEIGHT)
-    mainFrame:SetPoint("CENTER", UIParent, "CENTER", 200, 100)
     mainFrame:SetBackdrop({
         bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -76,8 +94,13 @@ local function buildMainFrame()
     mainFrame:SetMovable(true)
     mainFrame:RegisterForDrag("LeftButton")
     mainFrame:SetScript("OnDragStart", mainFrame.StartMoving)
-    mainFrame:SetScript("OnDragStop",  mainFrame.StopMovingOrSizing)
+    mainFrame:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        savePosition()
+    end)
     mainFrame:Hide()
+
+    restorePosition()
 
     -- Title over the name column
     local title = mainFrame:CreateFontString(nil, "overlay", "GameFontHighlightSmall")

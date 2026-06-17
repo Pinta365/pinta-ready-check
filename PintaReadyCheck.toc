@@ -1,9 +1,9 @@
-## Interface: 120001
+## Interface: 120007
 ## Name: PintaReadyCheck
 ## Title: |cff45D388Pinta Ready Check|r
 ## Notes: Shows consumable buff status (Flask, Food, Rune, Weapon) for group members during ready checks.
 ## Author: Pinta
-## Version: 0.0.2
+## Version: 0.1.0
 ## SavedVariables: PintaReadyCheckDB
 ## X-Curse-Project-ID: 1568788
 ## X-Wago-ID: QKy9v4K7

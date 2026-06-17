@@ -13,6 +13,15 @@ local ROW_GAP      = 2
 local NAME_WIDTH   = 90
 local SQUARE_SIZE  = 12
 local COL_WIDTH    = 36
+local STATUS_SIZE  = 14
+local STATUS_GAP   = 3
+local NAME_OFFSET  = STATUS_SIZE + STATUS_GAP
+
+local READY_STATUS_TEXTURE = {
+    ready    = "Interface\\RaidFrame\\ReadyCheck-Ready",
+    notready = "Interface\\RaidFrame\\ReadyCheck-NotReady",
+    waiting  = "Interface\\RaidFrame\\ReadyCheck-Waiting",
+}
 
 local COLOR_ON      = { r = 0.18, g = 0.88, b = 0.18, a = 1 }   -- green: buffed
 local COLOR_OFF     = { r = 0.80, g = 0.12, b = 0.12, a = 1 }   -- red: missing
@@ -21,7 +30,7 @@ local MAX_CAT       = PRC.CAT_COUNT or 5
 
 -- Horizontal centre of indicator column `j`, measured from the content's left edge.
 local function colCenter(j)
-    return NAME_WIDTH + (j - 1) * COL_WIDTH + COL_WIDTH / 2
+    return NAME_OFFSET + NAME_WIDTH + (j - 1) * COL_WIDTH + COL_WIDTH / 2
 end
 
 -- ============================================================
@@ -131,11 +140,16 @@ local function buildRow(index)
         FRAME_PAD,
         -(FRAME_PAD + TITLE_HEIGHT + (index - 1) * (ROW_HEIGHT + ROW_GAP))
     )
-    row:SetWidth(NAME_WIDTH + MAX_CAT * COL_WIDTH)
+    row:SetWidth(NAME_OFFSET + NAME_WIDTH + MAX_CAT * COL_WIDTH)
+
+    -- Ready-check response icon at the far left (green check / red X / yellow ?).
+    row.statusIcon = row:CreateTexture(nil, "OVERLAY")
+    row.statusIcon:SetSize(STATUS_SIZE, STATUS_SIZE)
+    row.statusIcon:SetPoint("LEFT", 0, 0)
 
     row.nameText = row:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
     row.nameText:SetWidth(NAME_WIDTH)
-    row.nameText:SetPoint("LEFT", 0, 0)
+    row.nameText:SetPoint("LEFT", NAME_OFFSET, 0)
     row.nameText:SetJustifyH("LEFT")
     row.nameText:SetWordWrap(false)
 
@@ -200,7 +214,7 @@ function PRC.RefreshDisplay()
 
     hideRows()
     refreshHeaders(activeCats)
-    mainFrame:SetWidth(NAME_WIDTH + catCount * COL_WIDTH + FRAME_PAD * 2 + 4)
+    mainFrame:SetWidth(NAME_OFFSET + NAME_WIDTH + catCount * COL_WIDTH + FRAME_PAD * 2 + 4)
 
     if mainFrame.allGoodText then mainFrame.allGoodText:Hide() end
 
@@ -222,6 +236,14 @@ function PRC.RefreshDisplay()
             local name = entry.name or "?"
             if #name > 12 then name = name:sub(1, 11) .. "~" end
             row.nameText:SetText(classColorName(name, entry.class))
+
+            local tex = READY_STATUS_TEXTURE[entry.readyStatus or ""]
+            if tex then
+                row.statusIcon:SetTexture(tex)
+                row.statusIcon:Show()
+            else
+                row.statusIcon:Hide()
+            end
 
             -- Colour each active indicator square; hide unused columns
             for i = 1, MAX_CAT do

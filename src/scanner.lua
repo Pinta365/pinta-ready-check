@@ -323,10 +323,11 @@ function PRC.ScanGroup()
         end
 
         results[#results + 1] = {
-            name      = name,
-            unitToken = token,
-            status    = status,
-            class     = select(2, UnitClass(token)),
+            name        = name,
+            unitToken   = token,
+            status      = status,
+            class       = select(2, UnitClass(token)),
+            readyStatus = GetReadyCheckStatus(token),
         }
     end
 

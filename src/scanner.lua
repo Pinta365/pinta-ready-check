@@ -254,21 +254,11 @@ end
 -- Aura scan
 -- ============================================================
 
---- Scan a single unit's consumable buffs (flask/food/rune).
---- Gear categories are left unset here; ScanGroup fills them in.
---- @param unitToken string  e.g. "player", "party1", "raid3"
---- @return table  status keyed by PRC.CAT values
-local function scanUnitBuffs(unitToken)
-    local status = {
-        [PRC.CAT.FLASK] = false,
-        [PRC.CAT.FOOD]  = false,
-        [PRC.CAT.RUNE]  = false,
-    }
-    if not UnitExists(unitToken) then return status end
-
-    local skipAuraScan = C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret()
-    if skipAuraScan then return status end
-
+--- Walk a unit's buffs, flagging matched consumables into `status`.
+--- Separated out so it can be pcall'd without allocating a closure per unit.
+--- @param unitToken string
+--- @param status table  mutated in place
+local function collectBuffs(unitToken, status)
     local i = 1
     while true do
         local aura = C_UnitAuras.GetBuffDataByIndex(unitToken, i)
@@ -286,6 +276,27 @@ local function scanUnitBuffs(unitToken)
         end
 
         i = i + 1
+    end
+end
+
+--- Scan a single unit's consumable buffs (flask/food/rune).
+--- Gear categories are left unset here; ScanGroup fills them in.
+--- @param unitToken string  e.g. "player", "party1", "raid3"
+--- @return table  status keyed by PRC.CAT values
+local function scanUnitBuffs(unitToken)
+    local status = {
+        [PRC.CAT.FLASK] = false,
+        [PRC.CAT.FOOD]  = false,
+        [PRC.CAT.RUNE]  = false,
+    }
+    if not UnitExists(unitToken) then return status end
+
+    local skipAuraScan = C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret()
+    if skipAuraScan then return status end
+
+    local ok, err = pcall(collectBuffs, unitToken, status)
+    if not ok then
+        PRC.Debug("aura scan failed for", unitToken, "-", err)
     end
 
     return status
